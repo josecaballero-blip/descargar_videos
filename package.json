@@ -1,0 +1,41 @@
+{
+  "name": "nova-downloader-bot",
+  "version": "1.0.0",
+  "description": "Professional, ultra-fast and modular Telegram Downloader Bot optimized for local and Vercel serverless deployments.",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon --watch \"src/**/*\" -e ts --exec \"ts-node\" src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "downloader",
+    "video",
+    "tiktok",
+    "youtube",
+    "instagram",
+    "vercel",
+    "serverless",
+    "grammy"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "@grammyjs/runner": "^2.0.3",
+    "axios": "^1.7.9",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "grammy": "^1.22.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
