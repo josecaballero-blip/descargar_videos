@@ -6,8 +6,8 @@ interface CobaltRequestParams {
   url: string;
   videoQuality?: string;
   audioFormat?: string;
-  downloadMode?: 'auto' | 'audio' | 'video';
-  filenamePattern?: 'classic' | 'pretty' | 'basic';
+  downloadMode?: 'auto' | 'audio' | 'mute';
+  filenameStyle?: 'classic' | 'pretty' | 'basic' | 'nerdy';
   youtubeVideoCodec?: 'h264' | 'vp9' | 'av1';
   tiktokFullAudio?: boolean;
 }
@@ -25,11 +25,12 @@ interface CobaltResponse {
 }
 
 const BACKUP_ENDPOINTS = [
-  'https://melon.clxxped.lol',
-  'https://nuko-c.meowing.de',
   'https://dog.kittycat.boo',
+  'https://cobaltapi.kittycat.boo',
+  'https://fox.kittycat.boo',
   'https://cobaltapi.squair.xyz',
-  'https://api.dl.woof.monster'
+  'https://melon.clxxped.lol',
+  'https://nuko-c.meowing.de'
 ];
 
 /**
@@ -56,7 +57,7 @@ export async function downloadFromCobalt(
     videoQuality: cobaltQuality,
     audioFormat: 'mp3',
     downloadMode: downloadMode,
-    filenamePattern: 'pretty',
+    filenameStyle: 'pretty',
     youtubeVideoCodec: 'h264', // Ensures Telegram inline play compatibility
     tiktokFullAudio: true,
   };
