@@ -10,9 +10,10 @@ export async function downloadFromSpotify(url: string): Promise<DownloadResult> 
   try {
     console.log(`Scraping Spotify URL: ${url}`);
     
+    // We send a Googlebot User-Agent to bypass Spotify's app redirection and get the pre-rendered metadata!
     const response = await axios.get(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'Accept-Language': 'en-US,en;q=0.9',
       },
       timeout: 10000,
@@ -20,21 +21,29 @@ export async function downloadFromSpotify(url: string): Promise<DownloadResult> 
 
     const html = response.data;
     
-    // Extract metadata from Open Graph tags
+    // Extract metadata using Spotify's pre-rendered tags
     const titleRegex = /<meta\s+property=["']og:title["']\s+content=["']([^"']+)["']/i;
-    const artistRegex = /<meta\s+property=["']twitter:audio:artist_name["']\s+content=["']([^"']+)["']/i;
-    const albumRegex = /<meta\s+property=["']twitter:audio:album_name["']\s+content=["']([^"']+)["']/i;
+    const musicianRegex = /<meta\s+name=["']music:musician_description["']\s+content=["']([^"']+)["']/i;
+    const twitterDescRegex = /<meta\s+name=["']twitter:description["']\s+content=["']([^"']+)["']/i;
     const imageRegex = /<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i;
     
     const titleMatch = html.match(titleRegex);
-    const artistMatch = html.match(artistRegex);
-    const albumMatch = html.match(albumRegex);
+    const musicianMatch = html.match(musicianRegex);
+    const twitterDescMatch = html.match(twitterDescRegex);
     const imageMatch = html.match(imageRegex);
     
     const title = titleMatch ? titleMatch[1] : 'Unknown Spotify Track';
-    const artist = artistMatch ? artistMatch[1] : 'Unknown Artist';
-    const album = albumMatch ? albumMatch[1] : 'Unknown Album';
+    const artist = musicianMatch ? musicianMatch[1] : 'Unknown Artist';
     const imageUrl = imageMatch ? imageMatch[1] : undefined;
+    
+    let album = 'Unknown Album';
+    if (twitterDescMatch) {
+      const desc = twitterDescMatch[1];
+      const parts = desc.split(' · ');
+      if (parts.length >= 2) {
+        album = parts[1];
+      }
+    }
 
     console.log(`Extracted Spotify metadata: "${title}" by "${artist}" (Album: "${album}")`);
 

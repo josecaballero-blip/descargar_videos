@@ -36,6 +36,34 @@ async function getTelegramMediaFile(url: string): Promise<InputFile | string> {
     return url;
   }
 }
+
+/**
+ * Helper to download any audio URL to a local memory buffer and wrap it in a grammY InputFile.
+ * This completely prevents Telegram's 'failed to get HTTP URL content' API errors when downloading from Cobalt dynamic proxy tunnels.
+ */
+async function getAudioMediaFile(url: string, title: string): Promise<InputFile | string> {
+  if (!url.startsWith('http')) return url;
+  try {
+    console.log(`Downloading audio file to local memory buffer: ${url}`);
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+      timeout: 25000,
+    });
+    const buffer = Buffer.from(response.data);
+    
+    // Clean title for safe filename
+    const cleanTitle = title.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim() || 'audio';
+    const filename = `${cleanTitle}.mp3`;
+    
+    return new InputFile(buffer, filename);
+  } catch (err) {
+    console.error(`Error downloading audio buffer for ${url}, falling back to direct URL:`, err);
+    return url;
+  }
+}
 import { downloadMedia } from '../services/downloadService';
 import { getTranslation } from '../middlewares/i18n';
 import { trackDownload, trackUser } from '../services/analyticsService';
@@ -190,7 +218,10 @@ messageComposer.on('message:text', async (ctx) => {
             songTitle = parts[1]?.trim() || songTitle;
           }
 
-          await ctx.replyWithAudio(mediaSource, {
+          // Download the audio file to a buffer first to bypass Telegram direct fetch restrictions
+          const audioSource = await getAudioMediaFile(result.url, result.title || 'audio');
+
+          await ctx.replyWithAudio(audioSource, {
             caption: captionText,
             parse_mode: 'Markdown',
             title: songTitle,
