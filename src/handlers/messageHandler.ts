@@ -181,10 +181,20 @@ messageComposer.on('message:text', async (ctx) => {
           });
         } else if (result.type === 'audio' || outputFormat === 'audio') {
           // Send as audio track
+          let performer: string | undefined = undefined;
+          let songTitle = result.title || 'Nova Downloader Audio';
+          
+          if (result.title && result.title.includes(' - ')) {
+            const parts = result.title.split(' - ');
+            performer = parts[0]?.trim();
+            songTitle = parts[1]?.trim() || songTitle;
+          }
+
           await ctx.replyWithAudio(mediaSource, {
             caption: captionText,
             parse_mode: 'Markdown',
-            title: result.title || 'Nova Downloader Audio',
+            title: songTitle,
+            performer: performer,
             reply_to_message_id: ctx.message.message_id,
           });
         } else {
